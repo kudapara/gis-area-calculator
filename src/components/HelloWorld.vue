@@ -9,9 +9,10 @@
         <!-- Input the values for each point -->
         <form @submit="preventDefault" class="mb-4 flex justify-between">
           <div>
-            <label for="" class="font-bold">Enter Name</label> <br>
+            <label for="" class="font-bold">Enter Side</label> <br>
             <input type="text" ref="defaultInput" v-model="point.name" placeholder="A" class="bg-grey-lightest border border-grey rounded py-1 px-4  mt-2">
           </div>
+
           <div class="mr-4">
             <label for="" class="font-bold">Enter Direction</label>
             <div class="flex">
@@ -25,6 +26,7 @@
             <label for="" class="font-bold">Enter Distance</label> <br>
             <input type="text" placeholder="123" v-model.number="point.distance" class="bg-grey-lightest border border-grey rounded py-1 px-4 mt-2">
           </div>
+
           <button @click="addPoint" class="bg-purple flex-no-shrink self-end h-10 w-10 text-white rounded-full shadow">+</button>
         </form>
 
@@ -111,7 +113,21 @@ export default {
       },
       currentStand: {
         stand_number: 0,
-        points: []
+        points: [
+          {
+            name: 'A',
+            coordinates: {
+              x: 0,
+              y: 0
+            },
+            distance: 0,
+            direction: {
+              degrees: 0,
+              minutes: 0,
+              seconds: 0
+            }
+          }
+        ]
       },
       stands: [],
       area: null
@@ -143,20 +159,20 @@ export default {
     preventDefault (e) {
       e.preventDefault()
     },
-    toDegrees (direction) {
+    toRadians (direction) {
       let { degrees, minutes, seconds } = direction
       return (degrees + (minutes / 60) + (seconds / 3600)) * (Math.PI / 180)
     },
     calculateCoordinates () {
-      let coordinates = []
-      for (let i = 0; i < this.currentStand.points.length; i++) {
+      let coordinates = [{ x: 0, y: 0 }]
+      for (let i = 1; i < this.currentStand.points.length; i++) {
         const point = this.currentStand.points[i]
         let x, y
 
-        const dx = point.distance * Math.cos(this.toDegrees(point.direction))
-        const dy = point.distance * Math.sin(this.toDegrees(point.direction))
-        point.coordinates.x = x = point.coordinates.x + dx
-        point.coordinates.y = y = point.coordinates.y + dy
+        const dx = point.distance * Math.cos(this.toRadians(point.direction))
+        const dy = point.distance * Math.sin(this.toRadians(point.direction))
+        point.coordinates.x = x = this.currentStand.points[i - 1].coordinates.x + dx
+        point.coordinates.y = y = this.currentStand.points[i - 1].coordinates.y + dy
         coordinates.push({ x, y })
       }
 
@@ -186,7 +202,7 @@ export default {
         SumOfDifferences += ((X1 * Y2) - (Y1 * X2))
       }
       
-      return Math.abs(SumOfDifferences / 4) // original implementation had SumOfDifferences/2
+      return Math.abs(SumOfDifferences / 2) // original implementation had SumOfDifferences/2
     }
 
   }
